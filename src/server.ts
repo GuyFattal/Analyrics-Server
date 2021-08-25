@@ -6,6 +6,7 @@ import songsRoutes from "./routes/songsRoutes";
 import artistsRoutes from "./routes/artistsRoutes";
 
 const app = express();
+app.use(express.json());
 
 // var con = mysql.createConnection({
 //   host: "sql4.freesqldatabase.com",
