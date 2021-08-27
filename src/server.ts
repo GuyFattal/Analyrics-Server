@@ -8,21 +8,6 @@ import artistsRoutes from "./routes/artistsRoutes";
 const app = express();
 app.use(express.json());
 
-// var con = mysql.createConnection({
-//   host: "sql4.freesqldatabase.com",
-//   user: "sql4432872",
-//   password: "fIwZ8a98KJ",
-//   database: "sql4432872",
-//   port: 3306,
-// });
-
-// con.connect(function (err: mysql.MysqlError) {
-//   if (err) console.log(err.message);
-//   else {
-//     console.log("Connected!");
-//   }
-// });
-
 app.use("/songs", songsRoutes);
 app.use("/artists", songsRoutes);
 
