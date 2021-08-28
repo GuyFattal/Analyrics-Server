@@ -20,9 +20,9 @@ export class QueryHelper {
     SID: string,
     name: string,
     year: number,
-    genre: string
+    genreID: string
   ): string {
-    return `("${SID}","${name}",${year},"${genre}")`;
+    return `("${SID}","${name}",${year},"${genreID}")`;
   }
   convertWritersOrArtistsDataToTuples(arr: valueAndID[]): string {
     let tuples = "";

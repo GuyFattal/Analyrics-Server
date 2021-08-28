@@ -1,8 +1,8 @@
 import express from "express";
-import { saveNewArtist } from "src/controllers/artistsController";
+import { getAllArtists } from "../controllers/artistsController";
 
 const router = express.Router();
 
-router.post("/", saveNewArtist);
+router.get("/", getAllArtists);
 
 export default router;
