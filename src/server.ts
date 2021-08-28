@@ -1,6 +1,5 @@
 import express from "express";
 import { Request, Response } from "express";
-import mysql from "mysql";
 
 import songsRoutes from "./routes/songsRoutes";
 import artistsRoutes from "./routes/artistsRoutes";
@@ -23,6 +22,6 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Analyrics Server Works!");
 });
 
-app.listen(3100, () => {
-  console.log("Application started on port 3100!");
+app.listen(process.env.PORT || 3100, () => {
+  console.log("Application started");
 });
