@@ -10,5 +10,18 @@ const getAllGenres = (req: Request, res: Response, next: NextFunction) => {
     }
   });
 };
+const getAllGenreSongs = (req: Request, res: Response, next: NextFunction) => {
+  const { name } = req.params;
+  db.query(
+    `SELECT song_name FROM songs where genre_name='${name}';`,
+    (err, result) => {
+      if (err) {
+        res.status(401).json({ message: "fatal error" });
+      } else {
+        res.status(200).json({ result });
+      }
+    }
+  );
+};
 
-export { getAllGenres };
+export { getAllGenres, getAllGenreSongs };
