@@ -1,5 +1,6 @@
 import express from "express";
 import { Request, Response } from "express";
+import cors from "cors";
 
 import songsRoutes from "./routes/songsRoutes";
 import artistsRoutes from "./routes/artistsRoutes";
@@ -10,6 +11,7 @@ import writersRoutes from "./routes/writersRoutes";
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 app.use("/songs", songsRoutes);
 app.use("/artists", artistsRoutes);

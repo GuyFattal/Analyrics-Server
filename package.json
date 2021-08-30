@@ -14,6 +14,7 @@
   "author": "guy fattal and nadav friedman",
   "license": "ISC",
   "devDependencies": {
+    "@types/cors": "^2.8.12",
     "@types/express": "^4.17.13",
     "@types/mysql": "^2.15.19",
     "@types/node": "^16.7.1",
@@ -24,6 +25,7 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "mysql": "^2.18.1",
     "uuid": "^8.3.2"
