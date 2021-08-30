@@ -24,32 +24,26 @@ export class QueryHelper {
   ): string {
     return `("${SID}","${name}",${year},"${genreID}")`;
   }
-  convertWritersOrArtistsDataToTuples(arr: valueAndID[]): string {
+
+  convertListToTuples(list: string[]) {
     let tuples = "";
-    arr.forEach((element, index) => {
-      tuples += `("${element.id}","${element.value}")`;
-      if (index < arr.length - 1) {
+    list.forEach((element, index) => {
+      tuples += `("${element}")`;
+      if (index < list.length - 1) {
         tuples += ",";
       }
     });
     return tuples;
   }
 
-  getRelationTuple(SID: string, arr: valueAndID[]) {
+  getRelationTuple(SID: string, arr: string[]) {
     let tuples = "";
     arr.forEach((element, index) => {
-      tuples += `("${SID}","${element.id}")`;
+      tuples += `("${SID}","${element}")`;
       if (index < arr.length - 1) {
         tuples += ",";
       }
     });
     return tuples;
   }
-  generateIdToArray = (arr: string[]): valueAndID[] => {
-    let IDarray: valueAndID[] = [];
-    arr.forEach((value) => {
-      IDarray.push({ id: uuidv4(), value });
-    });
-    return IDarray;
-  };
 }

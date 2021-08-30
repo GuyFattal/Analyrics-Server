@@ -11,4 +11,19 @@ const getAllArtists = (req: Request, res: Response, next: NextFunction) => {
   });
 };
 
-export { getAllArtists };
+const getAllArtistSongs = (req: Request, res: Response, next: NextFunction) => {
+  const { name } = req.params;
+  db.query(
+    `SELECT fullname,song_name FROM artists, artists_songs,songs
+     where artists.fullname=artists_songs.artist_name and artists.fullname='${name}' and artists_songs.SID=songs.SID;`,
+    (err, result) => {
+      if (err) {
+        res.status(401).json({ message: "fatal error" });
+      } else {
+        res.status(200).json({ result });
+      }
+    }
+  );
+};
+
+export { getAllArtists, getAllArtistSongs };

@@ -4,6 +4,8 @@ import { TextParser } from "../utils/TextParser";
 import { QueryHelper } from "./../utils/QueryHelper";
 import { v4 as uuidv4 } from "uuid";
 
+const VALUE_IS_ALREADY_EXISTS_ERROR_CODE = 1062;
+
 const getAllSongs = (req: Request, res: Response, next: NextFunction) => {
   db.query("select * from songs", (err, result) => {
     if (err) console.log(err.message);
@@ -27,31 +29,26 @@ const saveNewSong = (req: Request, res: Response, next: NextFunction) => {
 
 const insertDataToDB = (parsedSong: TextParser) => {
   const SID = uuidv4();
-  const genreId = uuidv4();
-  insertGenre(genreId, SID, parsedSong);
+  insertGenre(SID, parsedSong);
 };
 
-const insertGenre = (genreId: string, SID: string, parsedSong: TextParser) => {
+const insertGenre = (SID: string, parsedSong: TextParser) => {
   db.query(
-    `insert into genres values ("${genreId}","${parsedSong.songGenre}");`,
+    `insert into genres values ("${parsedSong.songGenre}");`,
     (err, result) => {
-      if (err) throw err;
-      insertSong(SID, genreId, parsedSong);
+      if (err && err.errno !== VALUE_IS_ALREADY_EXISTS_ERROR_CODE) throw err;
+      insertSong(SID, parsedSong);
     }
   );
 };
 
-const insertSong = async (
-  SID: string,
-  genreID: string,
-  parsedSong: TextParser
-) => {
+const insertSong = async (SID: string, parsedSong: TextParser) => {
   const qhelper = new QueryHelper();
   let values = qhelper.convertSongDataToTuple(
     SID,
     parsedSong.songName,
     parsedSong.songYear,
-    genreID
+    parsedSong.songGenre
   );
 
   await db.query(`insert into songs values ${values};`, (err, result) => {
@@ -71,12 +68,10 @@ const insertWords = (SID: string, parsedSong: TextParser) => {
 
 const insertArtists = (SID: string, parsedSong: TextParser) => {
   const qhelper = new QueryHelper();
-  const artistsWithID = qhelper.generateIdToArray(parsedSong.artists);
-  const artistsValues =
-    qhelper.convertWritersOrArtistsDataToTuples(artistsWithID);
-  const relationValues = qhelper.getRelationTuple(SID, artistsWithID);
+  const artistsValues = qhelper.convertListToTuples(parsedSong.artists);
+  const relationValues = qhelper.getRelationTuple(SID, parsedSong.artists);
   db.query(`insert into artists values ${artistsValues};`, (err, result) => {
-    if (err) throw err;
+    if (err && err.errno !== VALUE_IS_ALREADY_EXISTS_ERROR_CODE) throw err;
     db.query(
       `insert into artists_songs values ${relationValues};`,
       (err, result) => {
@@ -89,12 +84,10 @@ const insertArtists = (SID: string, parsedSong: TextParser) => {
 
 const insertWriters = (SID: string, parsedSong: TextParser) => {
   const qhelper = new QueryHelper();
-  const writersWithID = qhelper.generateIdToArray(parsedSong.writers);
-  const writersValues =
-    qhelper.convertWritersOrArtistsDataToTuples(writersWithID);
-  const relationValues = qhelper.getRelationTuple(SID, writersWithID);
+  const relationValues = qhelper.getRelationTuple(SID, parsedSong.writers);
+  const writersValues = qhelper.convertListToTuples(parsedSong.writers);
   db.query(`insert into writers values ${writersValues};`, (err, result) => {
-    if (err) throw err;
+    if (err && err.errno !== VALUE_IS_ALREADY_EXISTS_ERROR_CODE) throw err;
     db.query(
       `insert into writers_songs values ${relationValues};`,
       (err, result) => {

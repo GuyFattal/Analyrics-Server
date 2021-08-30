@@ -11,4 +11,20 @@ const getAllWriters = (req: Request, res: Response, next: NextFunction) => {
   });
 };
 
-export { getAllWriters };
+const getAllWritersSongs = (req: Request, res: Response) => {
+  const { name } = req.params;
+  db.query(
+    `SELECT fullname,song_name
+     FROM writers, writers_songs,songs where 
+     writers.fullname=writers_songs.writer_name and writers.fullname='${name}' and writers_songs.SID=songs.SID;`,
+    (err, result) => {
+      if (err) {
+        res.status(401).json({ message: "fatal error" });
+      } else {
+        res.status(200).json({ result });
+      }
+    }
+  );
+};
+
+export { getAllWriters, getAllWritersSongs };
