@@ -9,7 +9,7 @@ import { wordsResult } from "src/types";
 const getAllSongs = (req: Request, res: Response, next: NextFunction) => {
   db.query("select * from songs", (err, result) => {
     if (err) throw err;
-    res.status(200).json({ data: result });
+    res.status(200).json({ result });
   });
 };
 
@@ -168,7 +168,7 @@ const getSongById = (req: Request, res: Response, next: NextFunction) => {
         `select * from words where SID='${id}'`,
         (err, wordsResult: wordsResult) => {
           result[0].words = wordsResult;
-          res.status(200).json({ result });
+          res.status(200).json({ result: result[0] });
         }
       );
     }
