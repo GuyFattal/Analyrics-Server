@@ -3,11 +3,17 @@ import db from "../utils/connection";
 import { TextParser } from "../utils/TextParser";
 import { QueryHelper } from "./../utils/QueryHelper";
 import { v4 as uuidv4 } from "uuid";
-import { stringify } from "querystring";
 import { wordsResult } from "src/types";
 
 const getAllSongs = (req: Request, res: Response, next: NextFunction) => {
   db.query("select * from songs", (err, result) => {
+    if (err) throw err;
+    res.status(200).json({ result });
+  });
+};
+const getSongsByYear = (req: Request, res: Response, next: NextFunction) => {
+  const { year } = req.params;
+  db.query(`select * from songs where song_year=${year}`, (err, result) => {
     if (err) throw err;
     res.status(200).json({ result });
   });
@@ -175,4 +181,4 @@ const getSongById = (req: Request, res: Response, next: NextFunction) => {
   );
 };
 
-export { saveNewSong, getAllSongs, getSongById };
+export { saveNewSong, getAllSongs, getSongById, getSongsByYear };

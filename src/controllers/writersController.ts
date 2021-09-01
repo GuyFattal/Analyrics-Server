@@ -14,7 +14,7 @@ const getAllWriters = (req: Request, res: Response, next: NextFunction) => {
 const getAllWritersSongs = (req: Request, res: Response) => {
   const { name } = req.params;
   db.query(
-    `SELECT fullname,song_name
+    `SELECT songs.SID,song_name
      FROM writers, writers_songs,songs where 
      writers.fullname=writers_songs.writer_name and writers.fullname='${name}' and writers_songs.SID=songs.SID;`,
     (err, result) => {
