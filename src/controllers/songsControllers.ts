@@ -43,7 +43,7 @@ const insertGenre = (SID: string, parsedSong: TextParser) => {
   db.query(
     `insert into genres values ("${parsedSong.songGenre}");`,
     (err, result) => {
-      if (err) throw err;
+      if (err && err.errno !== 1062) throw err;
       insertSong(SID, parsedSong);
     }
   );
