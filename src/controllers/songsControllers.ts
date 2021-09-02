@@ -6,10 +6,17 @@ import { v4 as uuidv4 } from "uuid";
 import { wordsResult } from "src/types";
 
 const getAllSongs = (req: Request, res: Response, next: NextFunction) => {
-  db.query("select * from songs", (err, result) => {
-    if (err) throw err;
-    res.status(200).json({ result });
-  });
+  db.query(
+    `SELECT song_name, songs.SID,  group_concat(artists.fullname) as artists
+  FROM songs,artists,artists_songs
+  where artists_songs.SID=songs.SID 
+   and artists_songs.artist_name=artists.fullname 
+  group by song_name,songs.SID`,
+    (err, result) => {
+      if (err) throw err;
+      res.status(200).json({ result });
+    }
+  );
 };
 const getSongsByYear = (req: Request, res: Response, next: NextFunction) => {
   const { year } = req.params;

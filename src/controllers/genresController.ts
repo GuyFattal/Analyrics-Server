@@ -13,7 +13,7 @@ const getAllGenres = (req: Request, res: Response, next: NextFunction) => {
 const getAllGenreSongs = (req: Request, res: Response, next: NextFunction) => {
   const { name } = req.params;
   db.query(
-    `SELECT song_name, songs.SID,  group_concat(artists.fullname) as artitst
+    `SELECT song_name, songs.SID,  group_concat(artists.fullname) as artists
     FROM songs,artists,artists_songs
     where genre_name='${name}'
      and artists_songs.SID=songs.SID 

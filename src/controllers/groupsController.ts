@@ -13,11 +13,11 @@ const getAllGroups = (req: Request, res: Response, next: NextFunction) => {
 const getGroupWords = (req: Request, res: Response, next: NextFunction) => {
   const { group_name } = req.params;
   db.query(
-    `SELECT words.WID,words.text_data
-  FROM groups_words,groups_of_words,words
-  where groups_of_words.group_name=groups_words.group_name
-   and groups_of_words.group_name="${group_name}"
-   and words.WID=groups_words.WordID`,
+    `SELECT words.WID,groups_of_words.group_name,words.text_data,words.SID,words.section,words.section_row,words.row_offset
+    FROM groups_words,groups_of_words,words
+    where groups_of_words.group_name=groups_words.group_name
+     and groups_of_words.group_name="${group_name}"
+     and words.WID=groups_words.WordID`,
     (err, result) => {
       if (err) {
         res.status(401).json({ message: "fatal error" });

@@ -14,9 +14,13 @@ const getAllWriters = (req: Request, res: Response, next: NextFunction) => {
 const getAllWritersSongs = (req: Request, res: Response) => {
   const { name } = req.params;
   db.query(
-    `SELECT songs.SID,song_name
-     FROM writers, writers_songs,songs where 
-     writers.fullname=writers_songs.writer_name and writers.fullname='${name}' and writers_songs.SID=songs.SID;`,
+    `SELECT song_name, songs.SID,  group_concat(artists.fullname) as artists
+    FROM songs,artists,artists_songs,writers_songs
+    where writers_songs.SID=songs.SID
+     and artists_songs.SID=songs.SID 
+     and artists_songs.artist_name=artists.fullname 
+     and writers_songs.writer_name="${name}"
+    group by song_name,songs.SID`,
     (err, result) => {
       if (err) {
         res.status(401).json({ message: "fatal error" });
