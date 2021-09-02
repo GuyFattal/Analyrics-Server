@@ -50,5 +50,31 @@ const insertWordToGroup = (req: Request, res: Response, next: NextFunction) => {
     }
   );
 };
+const removeWordFromGroup = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { group_name, word_ID } = req.body;
+  db.query(
+    `delete 
+     from groups_words 
+     where group_name="${group_name}" 
+     and WordID = "${word_ID}"`,
+    (err, result) => {
+      if (err) {
+        res.status(401).json({ message: "fatal error", error: err });
+      } else {
+        res.status(200).json({ result });
+      }
+    }
+  );
+};
 
-export { getAllGroups, createGroup, insertWordToGroup, getGroupWords };
+export {
+  getAllGroups,
+  createGroup,
+  insertWordToGroup,
+  getGroupWords,
+  removeWordFromGroup,
+};

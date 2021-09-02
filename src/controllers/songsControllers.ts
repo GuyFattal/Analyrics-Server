@@ -8,10 +8,10 @@ import { wordsResult } from "src/types";
 const getAllSongs = (req: Request, res: Response, next: NextFunction) => {
   db.query(
     `SELECT song_name, songs.SID,  group_concat(artists.fullname) as artists
-  FROM songs,artists,artists_songs
-  where artists_songs.SID=songs.SID 
-   and artists_songs.artist_name=artists.fullname 
-  group by song_name,songs.SID`,
+    FROM songs,artists,artists_songs
+    where artists_songs.SID=songs.SID 
+      and artists_songs.artist_name=artists.fullname 
+    group by song_name,songs.SID`,
     (err, result) => {
       if (err) throw err;
       res.status(200).json({ result });
@@ -21,6 +21,12 @@ const getAllSongs = (req: Request, res: Response, next: NextFunction) => {
 const getSongsByYear = (req: Request, res: Response, next: NextFunction) => {
   const { year } = req.params;
   db.query(`select * from songs where song_year=${year}`, (err, result) => {
+    if (err) throw err;
+    res.status(200).json({ result });
+  });
+};
+const getAllYears = (req: Request, res: Response, next: NextFunction) => {
+  db.query(`select distinct(song_year) from songs`, (err, result) => {
     if (err) throw err;
     res.status(200).json({ result });
   });
@@ -188,4 +194,4 @@ const getSongById = (req: Request, res: Response, next: NextFunction) => {
   );
 };
 
-export { saveNewSong, getAllSongs, getSongById, getSongsByYear };
+export { saveNewSong, getAllSongs, getSongById, getSongsByYear, getAllYears };

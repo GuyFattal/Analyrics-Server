@@ -10,5 +10,20 @@ const getAllWords = (req: Request, res: Response, next: NextFunction) => {
     }
   });
 };
+const getWordByID = (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params;
+  db.query(
+    `select *
+    from words,songs 
+    where WID="${id}" and songs.SID = words.SID `,
+    (err, result) => {
+      if (err) {
+        res.status(401).json({ message: "fatal error" });
+      } else {
+        res.status(200).json({ result });
+      }
+    }
+  );
+};
 
-export { getAllWords };
+export { getAllWords, getWordByID };
