@@ -20,10 +20,18 @@ const getAllSongs = (req: Request, res: Response, next: NextFunction) => {
 };
 const getSongsByYear = (req: Request, res: Response, next: NextFunction) => {
   const { year } = req.params;
-  db.query(`select * from songs where song_year=${year}`, (err, result) => {
-    if (err) throw err;
-    res.status(200).json({ result });
-  });
+  db.query(
+    `SELECT song_name, songs.SID,  group_concat(artists.fullname) as artists
+  FROM songs,artists,artists_songs
+  where song_year='${year}'
+   and artists_songs.SID=songs.SID 
+   and artists_songs.artist_name=artists.fullname 
+  group by song_name,songs.SID`,
+    (err, result) => {
+      if (err) throw err;
+      res.status(200).json({ result });
+    }
+  );
 };
 const getAllYears = (req: Request, res: Response, next: NextFunction) => {
   db.query(`select distinct(song_year) from songs`, (err, result) => {
