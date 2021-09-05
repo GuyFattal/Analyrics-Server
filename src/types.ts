@@ -1,3 +1,5 @@
+import { type } from "os";
+
 export type word = {
   text_data: string;
   section: number;
@@ -18,3 +20,10 @@ export type wordsResult = {
   section_row: number;
   row_offset: number;
 }[];
+
+export type SongWithWordsFetch = {
+  SID: string;
+  words: string;
+  song_name: string;
+  artists: string;
+};
