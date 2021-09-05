@@ -194,7 +194,7 @@ const getSongById = (req: Request, res: Response, next: NextFunction) => {
       db.query(
         `select * from words where SID='${id}'`,
         (err, wordsResult: wordsResult) => {
-          result[0].words = wordsResult;
+          if (result.length > 0) result[0].words = wordsResult;
           res.status(200).json({ result: result[0] });
         }
       );

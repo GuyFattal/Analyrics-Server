@@ -8,6 +8,7 @@ import genresRoutes from "./routes/genresRoutes";
 import groupsRoutes from "./routes/groupsRoutes";
 import wordsRoutes from "./routes/wordsRoutes";
 import writersRoutes from "./routes/writersRoutes";
+import phrasesRoutes from "./routes/phrasesRoutes";
 
 const app = express();
 app.use(express.json());
@@ -19,6 +20,7 @@ app.use("/genres", genresRoutes);
 app.use("/groups", groupsRoutes);
 app.use("/words", wordsRoutes);
 app.use("/writers", writersRoutes);
+app.use("/phrases", phrasesRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Analyrics Server Works!");
