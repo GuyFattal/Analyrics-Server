@@ -13,12 +13,15 @@ const getAllGroups = (req: Request, res: Response, next: NextFunction) => {
 const getGroupWords = (req: Request, res: Response, next: NextFunction) => {
   const { group_name } = req.params;
   db.query(
-    `SELECT words.WID,groups_of_words.group_name,words.text_data,words.SID,songs.song_name,words.section,words.section_row,words.row_offset
-    FROM groups_words,groups_of_words,words,songs
+    `SELECT words.WID,groups_of_words.group_name,words.text_data,words.SID,songs.song_name,words.section,words.section_row,words.row_offset, group_concat(artists.fullname) as artists
+    FROM groups_words,groups_of_words,words,songs,artists_songs,artists
     where groups_of_words.group_name=groups_words.group_name
+	 and artists_songs.SID=songs.SID
+     and artists.fullname=artists_songs.artist_name
      and groups_of_words.group_name="${group_name}"
      and words.WID=groups_words.WordID
-     and songs.SID=words.SID`,
+     and songs.SID=words.SID
+     group by(words.WID)`,
     (err, result) => {
       if (err) {
         res.status(401).json({ message: "fatal error" });
