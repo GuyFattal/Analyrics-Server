@@ -6,6 +6,7 @@ var pool = mysql.createPool({
   password: "SxjhgSCsMF",
   database: "sql11434139",
   port: 3306,
+  multipleStatements: true,
 });
 
 pool.getConnection(function (err: mysql.MysqlError) {

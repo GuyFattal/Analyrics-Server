@@ -1,4 +1,6 @@
 import express from "express";
+import multer from "multer";
+
 import {
   getAllSongs,
   getAllYears,
@@ -8,8 +10,9 @@ import {
 } from "../controllers/songsControllers";
 
 const router = express.Router();
+const upload = multer();
 
-router.post("/", saveNewSong);
+router.post("/", upload.single("song"), saveNewSong);
 router.get("/", getAllSongs);
 router.get("/year/:year", getSongsByYear);
 router.get("/year", getAllYears);

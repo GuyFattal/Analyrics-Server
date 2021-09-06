@@ -41,7 +41,11 @@ const getAllYears = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const saveNewSong = (req: Request, res: Response, next: NextFunction) => {
-  const { text }: { text: string[] } = req.body;
+  if (req.file?.mimetype !== "text/plain") {
+    res.json({ error: "file format not supported" });
+    return;
+  }
+  const text = req.file?.buffer.toString().split("\r\n") || [];
   const parsedSong = new TextParser(text);
   parsedSong.parseTxt();
   if (parsedSong.wrongType) {
