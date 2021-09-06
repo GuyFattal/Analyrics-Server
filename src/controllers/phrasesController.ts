@@ -33,7 +33,7 @@ const getPhrasesSongs = (req: Request, res: Response, next: NextFunction) => {
             songs.push(song);
           }
         });
-        res.status(200).json({ songs });
+        res.status(200).json({ result: songs });
       }
     }
   );
