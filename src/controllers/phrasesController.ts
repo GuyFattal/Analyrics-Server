@@ -5,7 +5,7 @@ import { SongWithWordsFetch } from "../types";
 const getAllPhrases = (req: Request, res: Response, next: NextFunction) => {
   db.query(`select * from phrases`, (err, result) => {
     if (err) {
-      res.status(401).json({ message: "fatal error" });
+      res.status(401).json({ message: "fatal error", error: err });
     } else {
       res.status(200).json({ result });
     }
@@ -26,7 +26,7 @@ const getPhrasesSongs = (req: Request, res: Response, next: NextFunction) => {
     group by songsWithArtists.SID`,
     (err, result: SongWithWordsFetch[]) => {
       if (err) {
-        res.status(401).json({ message: "fatal error" });
+        res.status(401).json({ message: "fatal error", error: err });
       } else {
         result.forEach((song) => {
           if (song.words.includes(lowerPhrase)) {

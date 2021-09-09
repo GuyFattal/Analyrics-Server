@@ -11,7 +11,7 @@ const getAllWords = (req: Request, res: Response, next: NextFunction) => {
   group by (WID);`,
     (err, result) => {
       if (err) {
-        res.status(401).json({ message: "fatal error" });
+        res.status(401).json({ message: "fatal error", error: err });
       } else {
         res.status(200).json({ result });
       }
@@ -28,7 +28,7 @@ const getWordByID = (req: Request, res: Response, next: NextFunction) => {
     group by(words.WID) `,
     (err, result) => {
       if (err) {
-        res.status(401).json({ message: "fatal error" });
+        res.status(401).json({ message: "fatal error", error: err });
       } else {
         res.status(200).json({ result: result[0] });
       }

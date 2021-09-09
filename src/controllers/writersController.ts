@@ -4,7 +4,7 @@ import db from "../utils/connection";
 const getAllWriters = (req: Request, res: Response, next: NextFunction) => {
   db.query(`select * from writers`, (err, result) => {
     if (err) {
-      res.status(401).json({ message: "fatal error" });
+      res.status(401).json({ message: "fatal error", error: err });
     } else {
       res.status(200).json({ result });
     }
@@ -23,7 +23,7 @@ const getAllWritersSongs = (req: Request, res: Response) => {
     group by song_name,songs.SID`,
     (err, result) => {
       if (err) {
-        res.status(401).json({ message: "fatal error" });
+        res.status(401).json({ message: "fatal error", error: err });
       } else {
         res.status(200).json({ result });
       }
