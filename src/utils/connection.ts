@@ -2,9 +2,9 @@ import mysql, { MysqlError } from "mysql";
 
 var pool = mysql.createPool({
   host: "sql11.freesqldatabase.com",
-  user: "sql11434139",
-  password: "SxjhgSCsMF",
-  database: "sql11434139",
+  user: "sql11435961",
+  password: "BjBzwZMeVc",
+  database: "sql11435961",
   port: 3306,
   multipleStatements: true,
 });

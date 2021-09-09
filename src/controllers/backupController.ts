@@ -6,9 +6,9 @@ const getBackup = (req: Request, res: Response) => {
   mysqldump({
     connection: {
       host: "sql11.freesqldatabase.com",
-      user: "sql11434139",
+      user: "sql11435961",
       password: "SxjhgSCsMF",
-      database: "sql11434139",
+      database: "BjBzwZMeVc",
     },
     dumpToFile: "./backup.sql",
   }).then((file) => {
