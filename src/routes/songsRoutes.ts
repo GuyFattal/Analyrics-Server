@@ -1,6 +1,7 @@
 import express from "express";
 import multer from "multer";
 
+import { asyncify } from "./../utils/asyncify";
 import {
   getAllSongs,
   getAllYears,

@@ -4,64 +4,81 @@ import { TextParser } from "../utils/TextParser";
 import { QueryHelper } from "./../utils/QueryHelper";
 import { v4 as uuidv4 } from "uuid";
 import { wordsResult } from "src/types";
+import { asyncify } from "./../utils/asyncify";
+import { query } from "./../utils/query";
 
-const getAllSongs = (req: Request, res: Response, next: NextFunction) => {
-  db.query(
-    `SELECT song_name, songs.SID,  group_concat(artists.fullname) as artists
-    FROM songs,artists,artists_songs
-    where artists_songs.SID=songs.SID 
-      and artists_songs.artist_name=artists.fullname 
-    group by song_name,songs.SID`,
-    (err, result) => {
-      if (err) throw err;
-      res.status(200).json({ result });
-    }
-  );
-};
-const getSongsByYear = (req: Request, res: Response, next: NextFunction) => {
-  const { year } = req.params;
-  db.query(
-    `SELECT song_name, songs.SID,  group_concat(artists.fullname) as artists
+const getAllSongs = asyncify(async (req: Request, res: Response, next: NextFunction) => {
+  const sql = `SELECT song_name, songs.SID,  group_concat(artists.fullname) as artists
+  FROM songs,artists,artists_songs
+  where artists_songs.SID=songs.SID 
+    and artists_songs.artist_name=artists.fullname 
+  group by song_name,songs.SID`;
+  const result = await query(sql);
+  res.status(200).json({ result });
+});
+
+const getSongsByYear = asyncify(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { year } = req.params;
+    const sql = `SELECT song_name, songs.SID,  group_concat(artists.fullname) as artists
   FROM songs,artists,artists_songs
   where song_year='${year}'
    and artists_songs.SID=songs.SID 
    and artists_songs.artist_name=artists.fullname 
-  group by song_name,songs.SID`,
-    (err, result) => {
-      if (err) throw err;
-      res.status(200).json({ result });
-    }
-  );
-};
-const getAllYears = (req: Request, res: Response, next: NextFunction) => {
-  db.query(`select distinct(song_year) from songs`, (err, result) => {
-    if (err) throw err;
+  group by song_name,songs.SID`;
+    const result = await query(sql);
     res.status(200).json({ result });
-  });
-};
+  }
+);
 
-const saveNewSong = (req: Request, res: Response, next: NextFunction) => {
+const getAllYears = asyncify(async (req: Request, res: Response, next: NextFunction) => {
+  const result = await query("select distinct(song_year) from songs");
+  res.status(200).json({ result });
+});
+
+const getSongById = asyncify(async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params;
+  const getSongByIdSQL = `SELECT songs.SID,songs.song_name,songs.song_year,songs.genre_name,group_concat(writers.fullname) as writers,artists1.artists
+  FROM songs,writers,writers_songs,(SELECT songs.SID,song_name,song_year,genre_name,group_concat(artists.fullname) as artists 
+            FROM songs,artists,artists_songs
+            where songs.SID='${id}' 
+              and artists_songs.SID=songs.SID
+              and artists.fullname=artists_songs.artist_name
+            group by songs.SID,song_name,song_year,genre_name)as artists1
+  where songs.SID='${id}' 
+    and writers_songs.SID=songs.SID
+      and writers.fullname=writers_songs.writer_name
+  group by songs.SID,song_name,song_year,genre_name`;
+  const getSongWords = `select * from words where SID='${id}'`;
+
+  const songs = (await query(getSongByIdSQL)) as any;
+  const wordsResult: wordsResult = (await query(getSongWords)) as wordsResult;
+  if (songs.length > 0) songs[0].words = wordsResult;
+  res.status(200).json({ result: songs[0] });
+});
+
+const saveNewSong = asyncify(async (req: Request, res: Response, next: NextFunction) => {
   if (req.file?.mimetype !== "text/plain") {
-    res.json({ error: "file format not supported" });
+    res.json({ error: "file type is not txt" });
     return;
   }
   const text = req.file?.buffer.toString().split("\r\n") || [];
   const parsedSong = new TextParser(text);
   parsedSong.parseTxt();
   if (parsedSong.wrongType) {
-    res.status(401).json({ error: "file format not supported" });
+    res.status(400);
+    throw Error("file format not supported");
   }
-  try {
-    insertDataToDB(parsedSong);
-    res.status(200).json({ message: "ok" });
-  } catch (error) {
-    res.status(401).json({ error: "internal server error" });
-  }
-};
+  await insertDataToDB(parsedSong);
+  res.status(200).json({ message: "song was inserted" });
+});
 
-const insertDataToDB = (parsedSong: TextParser) => {
+const insertDataToDB = async (parsedSong: TextParser) => {
   const SID = uuidv4();
-  insertSong(SID, parsedSong);
+  await insertSong(SID, parsedSong);
+  await insertWords(SID, parsedSong);
+  await insertArtists(SID, parsedSong);
+  await insertWriters(SID, parsedSong);
 };
 
 const insertSong = async (SID: string, parsedSong: TextParser) => {
@@ -72,128 +89,53 @@ const insertSong = async (SID: string, parsedSong: TextParser) => {
     parsedSong.songYear,
     parsedSong.songGenre
   );
-
-  await db.query(`insert into songs values ${values};`, (err, result) => {
-    if (err) throw err;
-    insertWords(SID, parsedSong);
-  });
+  await query(`insert into songs values ${values};`);
 };
 
-const insertWords = (SID: string, parsedSong: TextParser) => {
+const insertWords = async (SID: string, parsedSong: TextParser) => {
   const qhelper = new QueryHelper();
   let values = qhelper.convertWordsToTuples(parsedSong.words, SID);
-  db.query(`insert into words values ${values};`, (err, result) => {
-    if (err) throw err;
-    insertArtists(SID, parsedSong);
-  });
+  await query(`insert into words values ${values};`);
 };
 
-const insertArtists = (SID: string, parsedSong: TextParser) => {
+const insertArtists = async (SID: string, parsedSong: TextParser) => {
   const qhelper = new QueryHelper();
   let newArtists: string[] = [];
-  db.query(`select * from artists`, (err, result) => {
-    if (err) throw err;
-    let currentArtists: string[] = (result as { fullname: string }[]).map(
-      (artist) => artist.fullname
-    );
-    parsedSong.artists.forEach((artist) => {
-      if (!currentArtists.includes(artist)) {
-        newArtists.push(artist);
-      }
-    });
-    const artistsValues = qhelper.convertListToTuples(newArtists);
-    const relationValues = qhelper.getRelationTuple(SID, parsedSong.artists);
-    if (newArtists.length > 0) {
-      db.query(
-        `insert into artists values ${artistsValues};`,
-        (err, result) => {
-          if (err) throw err;
-          db.query(
-            `insert into artists_songs values ${relationValues};`,
-            (err, result) => {
-              if (err) throw err;
-              insertWriters(SID, parsedSong);
-            }
-          );
-        }
-      );
-    } else {
-      db.query(
-        `insert into artists_songs values ${relationValues};`,
-        (err, result) => {
-          if (err) throw err;
-          insertWriters(SID, parsedSong);
-        }
-      );
+  const result = (await query(`select * from artists`)) as { fullname: string }[];
+  let currentArtists: string[] = (result as { fullname: string }[]).map(
+    (artist) => artist.fullname
+  );
+  parsedSong.artists.forEach((artist) => {
+    if (!currentArtists.includes(artist)) {
+      newArtists.push(artist);
     }
   });
+  const artistsValues = qhelper.convertListToTuples(newArtists);
+  const relationValues = qhelper.getRelationTuple(SID, parsedSong.artists);
+  if (newArtists.length > 0) {
+    await query(`insert into artists values ${artistsValues};`);
+  }
+  await query(`insert into artists_songs values ${relationValues};`);
 };
 
-const insertWriters = (SID: string, parsedSong: TextParser) => {
+const insertWriters = async (SID: string, parsedSong: TextParser) => {
   const qhelper = new QueryHelper();
   let newWriters: string[] = [];
-  db.query(`select * from writers`, (err, result) => {
-    if (err) throw err;
-    let currentWriters: string[] = (result as { fullname: string }[]).map(
-      (writer) => writer.fullname
-    );
-    parsedSong.writers.forEach((writer) => {
-      if (!currentWriters.includes(writer)) {
-        newWriters.push(writer);
-      }
-    });
-    const writersValues = qhelper.convertListToTuples(newWriters);
-    const relationValues = qhelper.getRelationTuple(SID, parsedSong.writers);
-    if (newWriters.length > 0) {
-      db.query(
-        `insert into writers values ${writersValues};`,
-        (err, result) => {
-          if (err) throw err;
-          db.query(
-            `insert into writers_songs values ${relationValues};`,
-            (err, result) => {
-              if (err) throw err;
-            }
-          );
-        }
-      );
-    } else {
-      db.query(
-        `insert into writers_songs values ${relationValues};`,
-        (err, result) => {
-          if (err) throw err;
-        }
-      );
+  const result = (await query(`select * from writers`)) as { fullname: string }[];
+  let currentWriters: string[] = (result as { fullname: string }[]).map(
+    (writer) => writer.fullname
+  );
+  parsedSong.writers.forEach((writer) => {
+    if (!currentWriters.includes(writer)) {
+      newWriters.push(writer);
     }
   });
-};
-
-const getSongById = (req: Request, res: Response, next: NextFunction) => {
-  const { id } = req.params;
-  db.query(
-    `SELECT songs.SID,songs.song_name,songs.song_year,songs.genre_name,group_concat(writers.fullname) as writers,artists1.artists
-    FROM songs,writers,writers_songs,(SELECT songs.SID,song_name,song_year,genre_name,group_concat(artists.fullname) as artists 
-              FROM songs,artists,artists_songs
-              where songs.SID='${id}' 
-                and artists_songs.SID=songs.SID
-                and artists.fullname=artists_songs.artist_name
-              group by songs.SID,song_name,song_year,genre_name)as artists1
-    where songs.SID='${id}' 
-      and writers_songs.SID=songs.SID
-        and writers.fullname=writers_songs.writer_name
-    group by songs.SID,song_name,song_year,genre_name
-    `,
-    (err, result) => {
-      if (err) throw err;
-      db.query(
-        `select * from words where SID='${id}'`,
-        (err, wordsResult: wordsResult) => {
-          if (result.length > 0) result[0].words = wordsResult;
-          res.status(200).json({ result: result[0] });
-        }
-      );
-    }
-  );
+  const writersValues = qhelper.convertListToTuples(newWriters);
+  const relationValues = qhelper.getRelationTuple(SID, parsedSong.writers);
+  if (newWriters.length > 0) {
+    await query(`insert into writers values ${writersValues};`);
+  }
+  await query(`insert into writers_songs values ${relationValues};`);
 };
 
 export { saveNewSong, getAllSongs, getSongById, getSongsByYear, getAllYears };
