@@ -2,7 +2,7 @@ import { Request, Response, NextFunction, ErrorRequestHandler } from "express";
 import db from "../utils/connection";
 
 const getAllGenres = (req: Request, res: Response, next: NextFunction) => {
-  db.query(`select * from genres`, (err, result) => {
+  db.query(`select distinct(genre_name) from songs`, (err, result) => {
     if (err) {
       res.status(401).json({ message: "fatal error", error: err });
     } else {
