@@ -13,6 +13,14 @@ const getAllWords = asyncify(async (req: Request, res: Response, next: NextFunct
   res.status(200).json({ result });
 });
 
+const getCommonWords = asyncify(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const sql = `select text_data,count(*) as appearances from words group by text_data  order by count(*) desc limit 5;`;
+    const result = await query(sql);
+    res.status(200).json({ result });
+  }
+);
+
 const getWordByID = asyncify(async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params;
   const sql = `select WID,text_data,songs.SID,section,section_row,row_offset,song_name,group_concat(fullname) as artists
@@ -51,4 +59,4 @@ const getWordGroups = asyncify(
   }
 );
 
-export { getAllWords, getWordByID, getWordGroups, getWordByIndex };
+export { getAllWords, getWordByID, getWordGroups, getWordByIndex, getCommonWords };
