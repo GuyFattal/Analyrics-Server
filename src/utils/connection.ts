@@ -1,10 +1,11 @@
+import { channel } from "diagnostics_channel";
 import mysql, { MysqlError } from "mysql";
 
 var pool = mysql.createPool({
-  host: "sql11.freesqldatabase.com",
-  user: "sql11435961",
-  password: "BjBzwZMeVc",
-  database: "sql11435961",
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_DATABASE,
   port: 3306,
   multipleStatements: true,
 });

@@ -1,6 +1,7 @@
 import express from "express";
 import { Request, Response } from "express";
 import cors from "cors";
+require("dotenv").config();
 
 import songsRoutes from "./routes/songsRoutes";
 import artistsRoutes from "./routes/artistsRoutes";
@@ -32,7 +33,6 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use(notFound);
 app.use(errorHandler);
-
 app.listen(process.env.PORT || 3100, () => {
   console.log("Application started");
 });

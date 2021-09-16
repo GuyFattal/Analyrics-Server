@@ -27,3 +27,4 @@ export type SongWithWordsFetch = {
   song_name: string;
   artists: string;
 };
+export type xmlFetch = { xml: string }[];
