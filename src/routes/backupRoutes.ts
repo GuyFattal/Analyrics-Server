@@ -1,14 +1,12 @@
 import express from "express";
 import multer from "multer";
 
-import { getBackup, getXMLBackup, loadFromFile } from "../controllers/backupController";
-import { asyncify } from "./../utils/asyncify";
+import { getXMLBackup, loadXML } from "../controllers/backupController";
 
 const router = express.Router();
 const upload = multer();
 
-router.get("/", getBackup);
-router.get("/xml", getXMLBackup);
-router.post("/", asyncify(upload.single("backup")), loadFromFile);
+router.get("/", getXMLBackup);
+router.post("/", upload.single("backup"), loadXML);
 
 export default router;

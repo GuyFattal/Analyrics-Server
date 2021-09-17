@@ -36,6 +36,25 @@ export class QueryHelper {
     return tuples;
   }
 
+  convertObjectListToTuples = (list: {}[]): string => {
+    let tuples = "";
+    list.forEach((element, index) => {
+      tuples += `(`;
+      const values = Object.values(element);
+      values.forEach((value, valueIndex) => {
+        tuples += `"${value}"`;
+        if (valueIndex < values.length - 1) {
+          tuples += ",";
+        }
+      });
+      tuples += `)`;
+      if (index < list.length - 1) {
+        tuples += ",";
+      }
+    });
+    return tuples;
+  };
+
   getRelationTuple(SID: string, arr: string[]) {
     let tuples = "";
     arr.forEach((element, index) => {
