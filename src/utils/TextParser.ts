@@ -102,9 +102,7 @@ export class TextParser {
     if (field !== LYRICS) {
       this.wrongType = true;
     } else {
-      const lyrics: string[] = this.text.filter(
-        (_, index) => index > LYRICS_ROW
-      );
+      const lyrics: string[] = this.text.filter((_, index) => index > LYRICS_ROW);
       this.lyrics = lyrics;
     }
   }
